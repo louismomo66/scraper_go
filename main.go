@@ -41,7 +41,7 @@ func readTxt(path string) []string {
 }
 
 func getUrls(path2 string) []string {
-  names := read_txt(path2)
+  names := readTxt(path2)
   var urlResults []string
   for _, companyName := range names {
     doc, err := goquery.NewDocument("http://google.com/search?q="+companyName)
