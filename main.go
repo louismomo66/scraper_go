@@ -20,56 +20,54 @@ import (
 //   return readFile}
 
 func readTxt(path string) []string {
-  
-  readFile, err := os.Open(path)
-  if err != nil {
-      log.Fatal(err)
-  }
 
-  defer readFile.Close()
+	readFile, err := os.Open(path)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-  var fileLines []string
-  fileScanner := bufio.NewScanner(readFile)
-  fileScanner.Split(bufio.ScanLines)
-  
-  for fileScanner.Scan() {
-    fileLines = append(fileLines,fileScanner.Text())
-  }
+	defer readFile.Close()
 
-  
-  return fileLines
+	var fileLines []string
+	fileScanner := bufio.NewScanner(readFile)
+	fileScanner.Split(bufio.ScanLines)
+
+	for fileScanner.Scan() {
+		fileLines = append(fileLines, fileScanner.Text())
+	}
+
+	return fileLines
 }
 
 func getUrls(path2 string) []string {
-  names := readTxt(path2)
-  var urlResults []string
-  for _, companyName := range names {
-    doc, err := goquery.NewDocument("http://google.com/search?q="+companyName)
-    if err != nil {
-        log.Fatal(err)
-    }
-  
-    doc.Find("body a").Each(func(index int, item *goquery.Selection){
-  linkTag := item
-  link, _:= linkTag.Attr("href")
+	names := readTxt(path2)
+	var urlResults []string
+	for _, companyName := range names {
+		doc, err := goquery.NewDocument("http://google.com/search?q=" + companyName)
+		if err != nil {
+			log.Fatal(err)
+		}
 
-  if strings.HasPrefix(link,"/url?q=") {
-    link = strings.TrimPrefix(link, "/url?q=")
-    link = strings.Split(link, "&")[0]
-    urlResults = append(urlResults,link)
-  }
-  
-    })
-    
-}
-return urlResults
-}
+		doc.Find("body a").Each(func(index int, item *goquery.Selection) {
+			linkTag := item
+			link, _ := linkTag.Attr("href")
 
+			if strings.HasPrefix(link, "/url?q=") {
+				link = strings.TrimPrefix(link, "/url?q=")
+				link = strings.Split(link, "&")[0]
+				urlResults = append(urlResults, link)
+			}
+
+		})
+
+	}
+	return urlResults
+}
 
 func main() {
-links := getUrls("file.txt")
+	links := getUrls("file.txt")
 
-for i,link:= range links {
- fmt.Printf("Links #%d: %s\n", i+1, link)
- }
+	for i, link := range links {
+		fmt.Printf("Links #%d: %s\n", i+1, link)
+	}
 }
