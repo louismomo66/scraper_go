@@ -23,21 +23,25 @@ func read_txt(path string) []string{
   
   readFile, err := os.Open(path)
   if err != nil {
-    fmt.Println(err)
+    log.Fatal(err)
   }
+
+  defer readFile.Close()
+
+  var fileLines []string
   fileScanner := bufio.NewScanner(readFile)
   fileScanner.Split(bufio.ScanLines)
-  var fileLines []string
+  
   for fileScanner.Scan() {
     fileLines = append(fileLines,fileScanner.Text())
   }
 
-  readFile.Close()
+  
   return fileLines
 }
 
-func getUrls(path2 string) []string {
-  names := read_txt(path2)
+func getUrls(path string) []string {
+  names := read_txt(path)
   var urlResults []string
   for _, companyName := range names {
     doc, err := goquery.NewDocument("http://google.com/search?q="+companyName)
