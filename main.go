@@ -19,7 +19,7 @@ import (
 //   }
 //   return readFile}
 
-func read_txt(path string) []string{
+func readTxt(path string) []string {
   
   readFile, err := os.Open(path)
   if err != nil {
@@ -40,8 +40,8 @@ func read_txt(path string) []string{
   return fileLines
 }
 
-func getUrls(path string) []string {
-  names := read_txt(path)
+func getUrls(path2 string) []string {
+  names := read_txt(path2)
   var urlResults []string
   for _, companyName := range names {
     doc, err := goquery.NewDocument("http://google.com/search?q="+companyName)
