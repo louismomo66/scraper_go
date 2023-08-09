@@ -19,7 +19,7 @@ import (
 //   }
 //   return readFile}
 
-func read_txt(path string) []string{
+func read_txt(path string) []string {
   
   readFile, err := os.Open(path)
   if err != nil {
