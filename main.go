@@ -23,7 +23,7 @@ func readTxt(path string) []string {
   
   readFile, err := os.Open(path)
   if err != nil {
-    log.Fatal(err)
+      log.Fatal(err)
   }
 
   defer readFile.Close()
@@ -46,7 +46,7 @@ func getUrls(path2 string) []string {
   for _, companyName := range names {
     doc, err := goquery.NewDocument("http://google.com/search?q="+companyName)
     if err != nil {
-      log.Fatal(err)
+        log.Fatal(err)
     }
   
     doc.Find("body a").Each(func(index int, item *goquery.Selection){
