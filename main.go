@@ -24,7 +24,7 @@ func readTxt(path string) []string {
 
 	readFile, err := os.Open(path)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 
 	defer readFile.Close()
