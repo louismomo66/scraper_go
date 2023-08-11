@@ -7,17 +7,12 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
-// func readData(filepath string) *os.File {
-//   readFile, err := os.Open(filepath)
-//   if err != nil {
-//     fmt.Println(err)
-//   }
-//   return readFile}
 
 func readTxt(path string) []string {
 
@@ -39,52 +34,54 @@ func readTxt(path string) []string {
 	return fileLines
 }
 
-func getUrls(companyName string) string {
-	// names := readTxt(companyName)
-	// var urlResults []string
-	// for _, companyName := range names {
-	resp, err := http.Get("http://google.com/search?q=" + companyName)
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
+func getUrls(companyName string) []string {
+	names := readTxt(companyName)
+	var urlResults []string
+	for _, companyName := range names {
+		resp, err := http.Get("http://google.com/search?q=" + companyName)
+		if err != nil {
+			panic(err)
+		}
+		defer resp.Body.Close()
 
-	// doc, err := goquery.NewDocument("http://google.com/search?q=" + companyName)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	firstLink := ""
-	doc.Find("body a").Each(func(index int, item *goquery.Selection) {
-		linkTag := item
-		link, _ := linkTag.Attr("href")
-
-		if strings.HasPrefix(link, "/url?q=") && firstLink == "" {
-			link = strings.TrimPrefix(link, "/url?q=")
-			link = strings.Split(link, "&")[0]
-			firstLink = link
+		doc, err := goquery.NewDocumentFromReader(resp.Body)
+		if err != nil {
+			fmt.Println(err)
 		}
 
-	})
+		doc.Find("body a").Each(func(index int, item *goquery.Selection) {
+			linkTag := item
+			link, _ := linkTag.Attr("href")
 
-	// }
-	return firstLink
+			if strings.HasPrefix(link, "/url?q=") {
+				link = strings.TrimPrefix(link, "/url?q=")
+				link = strings.Split(link, "&")[0]
+				urlResults = append(urlResults, link)
+			}
+
+		})
+
+	}
+	return urlResults
+}
+
+func facebookUrl(urls []string) []string {
+	var facebookUrls []string
+	re := regexp.MustCompile(`^(https?://)?(www\.)?facebook\.com/[^/]+/?$`)
+
+	for _, url := range urls {
+		if re.MatchString(url) {
+			facebookUrls = append(facebookUrls, url)
+		}
+	}
+	return facebookUrls
 }
 
 func main() {
-	companyNames := readTxt("file.txt")
-	var companyUrls []string
 
-	for _, companyName := range companyNames {
-		firstLink := getUrls(companyName)
-		companyUrls = append(companyUrls, firstLink)
-	}
-
-	for i, link := range companyUrls {
+	companyUrls := getUrls("file.txt")
+	facebookUrls := facebookUrl(companyUrls)
+	for i, link := range facebookUrls {
 		fmt.Printf("Links #%d: %s\n", i+1, link)
 	}
 }
