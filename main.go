@@ -44,8 +44,7 @@ func getUrls(companyName string) string {
 	// names := readTxt(companyName)
 	// var urlResults []string
 	// for _, companyName := range names {
-	url := "http://google.com/search?q=" + companyName
-	resp, err := http.Get(url)
+	resp, err := http.Get("http://google.com/search?q=" + companyName)
 	if err != nil {
 		panic(err)
 	}
