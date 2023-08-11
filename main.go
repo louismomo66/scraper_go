@@ -65,7 +65,7 @@ func getUrls(companyName string) []string {
 	return urlResults
 }
 
-func facebookUrl(urls []string) []string {
+func facebookURL(urls []string) []string {
 	var facebookUrls []string
 	re := regexp.MustCompile(`^(https?://)?(www\.)?facebook\.com/[^/]+/?$`)
 
@@ -80,7 +80,7 @@ func facebookUrl(urls []string) []string {
 func main() {
 
 	companyUrls := getUrls("file.txt")
-	facebookUrls := facebookUrl(companyUrls)
+	facebookUrls := facebookURL(companyUrls)
 	for i, link := range facebookUrls {
 		fmt.Printf("Links #%d: %s\n", i+1, link)
 	}
