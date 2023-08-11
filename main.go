@@ -6,6 +6,7 @@ import (
 	"bufio"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 
@@ -43,10 +44,22 @@ func getUrls(companyName string) string {
 	// names := readTxt(companyName)
 	// var urlResults []string
 	// for _, companyName := range names {
-	doc, err := goquery.NewDocument("http://google.com/search?q=" + companyName)
+	URL := "http://google.com/search?q=" + companyName
+	resp, err := http.Get(URL)
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer resp.Body.Close()
+
+	// doc, err := goquery.NewDocument("http://google.com/search?q=" + companyName)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	firstLink := ""
 	doc.Find("body a").Each(func(index int, item *goquery.Selection) {
 		linkTag := item
