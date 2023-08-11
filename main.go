@@ -5,7 +5,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -56,7 +55,7 @@ func getUrls(companyName string) string {
 	// }
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 
 	firstLink := ""
