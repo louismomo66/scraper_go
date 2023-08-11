@@ -39,35 +39,41 @@ func readTxt(path string) []string {
 	return fileLines
 }
 
-func getUrls(path2 string) []string {
-	names := readTxt(path2)
-	var urlResults []string
-	for _, companyName := range names {
-		doc, err := goquery.NewDocument("http://google.com/search?q=" + companyName)
-		if err != nil {
-			log.Fatal(err)
+func getUrls(companyName string) string {
+	// names := readTxt(companyName)
+	// var urlResults []string
+	// for _, companyName := range names {
+	doc, err := goquery.NewDocument("http://google.com/search?q=" + companyName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	firstLink := ""
+	doc.Find("body a").Each(func(index int, item *goquery.Selection) {
+		linkTag := item
+		link, _ := linkTag.Attr("href")
+
+		if strings.HasPrefix(link, "/url?q=") && firstLink == "" {
+			link = strings.TrimPrefix(link, "/url?q=")
+			link = strings.Split(link, "&")[0]
+			firstLink = link
 		}
 
-		doc.Find("body a").Each(func(index int, item *goquery.Selection) {
-			linkTag := item
-			link, _ := linkTag.Attr("href")
+	})
 
-			if strings.HasPrefix(link, "/url?q=") {
-				link = strings.TrimPrefix(link, "/url?q=")
-				link = strings.Split(link, "&")[0]
-				urlResults = append(urlResults, link)
-			}
-
-		})
-
-	}
-	return urlResults
+	// }
+	return firstLink
 }
 
 func main() {
-	links := getUrls("file.txt")
+	companyNames := readTxt("file.txt")
+	var companyUrls []string
 
-	for i, link := range links {
+	for _, companyName := range companyNames {
+		firstLink := getUrls(companyName)
+		companyUrls = append(companyUrls, firstLink)
+	}
+
+	for i, link := range companyUrls {
 		fmt.Printf("Links #%d: %s\n", i+1, link)
 	}
 }
