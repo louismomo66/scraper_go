@@ -13,7 +13,6 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-
 func readTxt(path string) []string {
 
 	readFile, err := os.Open(path)
