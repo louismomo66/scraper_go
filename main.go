@@ -1,10 +1,9 @@
-//
-
 package main
 
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"regexp"
@@ -47,40 +46,61 @@ func getUrls(companyName string) []string {
 		if err != nil {
 			fmt.Println(err)
 		}
-
+		foundURL := ""
 		doc.Find("body a").Each(func(index int, item *goquery.Selection) {
-			linkTag := item
-			link, _ := linkTag.Attr("href")
+			if foundURL == "" {
+				linkTag := item
+				link, _ := linkTag.Attr("href")
 
-			if strings.HasPrefix(link, "/url?q=") {
-				link = strings.TrimPrefix(link, "/url?q=")
-				link = strings.Split(link, "&")[0]
-				urlResults = append(urlResults, link)
+				if strings.HasPrefix(link, "/url?q=") {
+					link = strings.TrimPrefix(link, "/url?q=")
+					link = strings.Split(link, "&")[0]
+					foundURL = link
+				}
 			}
-
 		})
-
+		if foundURL != "" {
+			urlResults = append(urlResults, foundURL)
+		}
 	}
 	return urlResults
 }
 
-func facebookURL(urls []string) []string {
-	var facebookUrls []string
-	re := regexp.MustCompile(`^(https?://)?(www\.)?facebook\.com/[^/]+/?$`)
 
-	for _, url := range urls {
-		if re.MatchString(url) {
-			facebookUrls = append(facebookUrls, url)
-		}
+func aboutUs(companyURL string) {
+	aboutUsURL := ""
+	resp, err := http.Get(companyURL)
+	if err != nil {
+		fmt.Printf("Error fetching %s: %v\n", companyURL, err)
+		// return aboutUsURL
 	}
-	return facebookUrls
+	defer resp.Body.Close()
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("Error reading respinse body: %v\n", err)
+		// return aboutUsURL
+	}
+
+	re := regexp.MustCompile(`(?i)<a[^>]+href=["']?([^"']+)["']?[^>]*>(?:\s*about\s*us\s*|about|contact\s*us)\s*</a>`)
+	match := re.FindStringSubmatch(string(data))
+	if len(match) > 1 {
+		aboutUsURL = match[1]
+	}
+	if !strings.HasPrefix(aboutUsURL, "http") {
+		aboutUsURL = companyURL + aboutUsURL
+	}
+
+	fmt.Printf("About us:%s \n", aboutUsURL)
 }
 
 func main() {
 
 	companyUrls := getUrls("file.txt")
-	facebookUrls := facebookURL(companyUrls)
-	for i, link := range facebookUrls {
-		fmt.Printf("Links #%d: %s\n", i+1, link)
+	for _, comp := range companyUrls {
+		// fmt.Println(comp)
+		// homeUrl(comp)
+		aboutUs(comp)
 	}
+
 }
