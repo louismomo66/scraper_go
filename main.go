@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"regexp"
@@ -16,7 +17,7 @@ func readTxt(path string) []string {
 
 	readFile, err := os.Open(path)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 
 	defer readFile.Close()
@@ -44,7 +45,7 @@ func getUrls(companyName string) []string {
 
 		doc, err := goquery.NewDocumentFromReader(resp.Body)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 		}
 		foundURL := ""
 		doc.Find("body a").Each(func(index int, item *goquery.Selection) {
