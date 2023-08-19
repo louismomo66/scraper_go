@@ -67,20 +67,26 @@ func getUrls(companyName string) []string {
 	return urlResults
 }
 
+func extractEmail(htmlContent string) string {
+	re := regexp.MustCompile(`[\w\.-]+@[\w\.-]+`)
+	match := re.FindString(htmlContent)
+	return match
+}
 
-func aboutUs(companyURL string) {
+func aboutUs(companyName, companyURL string) string {
 	aboutUsURL := ""
+	value := ""
 	resp, err := http.Get(companyURL)
 	if err != nil {
 		fmt.Printf("Error fetching %s: %v\n", companyURL, err)
-		// return aboutUsURL
+
 	}
 	defer resp.Body.Close()
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("Error reading respinse body: %v\n", err)
-		// return aboutUsURL
+
 	}
 
 	re := regexp.MustCompile(`(?i)<a[^>]+href=["']?([^"']+)["']?[^>]*>(?:\s*about\s*us\s*|about|contact\s*us)\s*</a>`)
@@ -92,16 +98,47 @@ func aboutUs(companyURL string) {
 		aboutUsURL = companyURL + aboutUsURL
 	}
 
-	fmt.Printf("About us:%s \n", aboutUsURL)
+	// fmt.Printf("About us:%s \n", aboutUsURL)
+
+	resp, err = http.Get(aboutUsURL)
+	if err != nil {
+		fmt.Printf("Error fetching %s: %v\n", aboutUsURL, err)
+	}
+	defer resp.Body.Close()
+
+	data, err = io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	email := extractEmail(string(data))
+	if email != "" {
+		result := fmt.Sprintf("%s: %s\n", companyName, email)
+		value = result
+	}
+	return value
 }
 
 func main() {
-
+	companyName := readTxt("file.txt")
 	companyUrls := getUrls("file.txt")
-	for _, comp := range companyUrls {
-		// fmt.Println(comp)
-		// homeUrl(comp)
-		aboutUs(comp)
-	}
 
+	file, err := os.Create("results.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+	for i, comp := range companyUrls {
+
+		if i < len(companyName) {
+			returned := aboutUs(companyName[i], comp)
+			data1 := []byte(returned + "\n")
+			// temp := filepath.Join(os.TempDir(),"results.txt")
+			_, err := file.Write(data1)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println(returned)
+		}
+	}
 }
