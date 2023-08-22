@@ -33,10 +33,7 @@ func readTxt(path string) []string {
 	return fileLines
 }
 
-func getUrls(companyName string) []string {
-	names := readTxt(companyName)
-	var urlResults []string
-	for _, companyName := range names {
+func getUrls(companyName string) string {
 		resp, err := http.Get("http://google.com/search?q=" + companyName)
 		if err != nil {
 			panic(err)
@@ -60,10 +57,9 @@ func getUrls(companyName string) []string {
 				}
 			}
 		})
-		if foundURL != "" {
-			urlResults = append(urlResults, foundURL)
-		}
-	}
+		
+			urlResults := foundURL
+	
 	return urlResults
 }
 
@@ -84,9 +80,8 @@ func extractEmail(content string) string {
 	return match
 }
 
-func aboutUs(companyName, companyURL string) string {
+func aboutUs(companyURL string) string {
 	aboutUsURL := ""
-	// value := ""
 	resp, err := http.Get(companyURL)
 	if err != nil {
 		fmt.Printf("Error fetching %s: %v\n", companyURL, err)
@@ -112,26 +107,26 @@ func aboutUs(companyName, companyURL string) string {
 }
 
 func main() {
+	
 	companyName := readTxt("file.txt")
-	companyUrls := getUrls("file.txt")
-// emailC := extractEmail("https://sunbird.ai/about/")
-// fmt.Println(emailC)
 	file, err := os.Create("results.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
-	for i, comp := range companyUrls {
-
-		if i < len(companyName) {
-			returned := aboutUs(companyName[i], comp)
-			data1 := []byte(returned + "\n")
-			// temp := filepath.Join(os.TempDir(),"results.txt")
-			_, err := file.Write(data1)
+	for _ , name := range companyName {
+		companyUrls := getUrls(name)
+		aboutUsLink := aboutUs(companyUrls)
+		email := extractEmail(aboutUsLink)
+		result := fmt.Sprintf("%s: %s \n",name,email)
+    fmt.Println(result)
+		if result != "" {
+			data := []byte(result)
+			_, err := file.Write(data)
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Println(returned)
 		}
 	}
 }
+
