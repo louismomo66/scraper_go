@@ -67,15 +67,26 @@ func getUrls(companyName string) []string {
 	return urlResults
 }
 
-func extractEmail(htmlContent string) string {
+func extractEmail(content string) string { 
+
+	resp,err := http.Get(content)
+	if err != nil {
+		fmt.Print(err)
+	}
+	defer resp.Body.Close()
+	data,err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(err)
+	}
+	
 	re := regexp.MustCompile(`[\w\.-]+@[\w\.-]+`)
-	match := re.FindString(htmlContent)
+	match := re.FindString(string(data))
 	return match
 }
 
 func aboutUs(companyName, companyURL string) string {
 	aboutUsURL := ""
-	value := ""
+	// value := ""
 	resp, err := http.Get(companyURL)
 	if err != nil {
 		fmt.Printf("Error fetching %s: %v\n", companyURL, err)
@@ -97,32 +108,14 @@ func aboutUs(companyName, companyURL string) string {
 	if !strings.HasPrefix(aboutUsURL, "http") {
 		aboutUsURL = companyURL + aboutUsURL
 	}
-
-	// fmt.Printf("About us:%s \n", aboutUsURL)
-
-	resp, err = http.Get(aboutUsURL)
-	if err != nil {
-		fmt.Printf("Error fetching %s: %v\n", aboutUsURL, err)
-	}
-	defer resp.Body.Close()
-
-	data, err = io.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	email := extractEmail(string(data))
-	if email != "" {
-		result := fmt.Sprintf("%s: %s\n", companyName, email)
-		value = result
-	}
-	return value
+	return aboutUsURL
 }
 
 func main() {
 	companyName := readTxt("file.txt")
 	companyUrls := getUrls("file.txt")
-
+// emailC := extractEmail("https://sunbird.ai/about/")
+// fmt.Println(emailC)
 	file, err := os.Create("results.txt")
 	if err != nil {
 		log.Fatal(err)
