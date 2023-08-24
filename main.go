@@ -1,37 +1,19 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"regexp"
+	"scraper/readfile"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
-func readTxt(path string) []string {
 
-	readFile, err := os.Open(path)
-	if err != nil {
-		log.Println(err)
-	}
-
-	defer readFile.Close()
-
-	var fileLines []string
-	fileScanner := bufio.NewScanner(readFile)
-	fileScanner.Split(bufio.ScanLines)
-
-	for fileScanner.Scan() {
-		fileLines = append(fileLines, fileScanner.Text())
-	}
-
-	return fileLines
-}
 
 func getUrls(companyName string) string {
 		resp, err := http.Get("http://google.com/search?q=" + companyName)
@@ -108,7 +90,7 @@ func aboutUs(companyURL string) string {
 
 func main() {
 	
-	companyName := readTxt("file.txt")
+	companyName := readfile.ReadTxt("file.txt")
 	file, err := os.Create("results.txt")
 	if err != nil {
 		log.Fatal(err)
