@@ -1,10 +1,9 @@
 package readfile
 
 import (
-	"os"
-	"log"
 	"bufio"
-
+	"log"
+	"os"
 )
 func ReadTxt(path string) []string {
 
