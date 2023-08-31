@@ -1,39 +1,46 @@
 package scrapers_test
 
 import (
-	"io"
-	"net/http"
-	"net/http/httptest"
 	"scraper/scrapers"
 	"testing"
 )
+
 func TestGetUrls(t *testing.T) {
+	t.Parallel()
 	tt := []struct {
-		company string
-		htmlResponse string
-		expectedURL string
+		testName    string
+		companyName string
+		want        string
 	}{{
-		"codebits",`<html>
-		<body>
-		<a href="/url?q=http://codebits.com">Example</a>
-		<a href="https://codebits.com">Example</a>
-		</body>
-	</html>`,"https://codebits.in/",
+		testName:    "Url without www",
+		companyName: "kfc ",
+		want:        "https://jfood.kfc.ug/",
 	},
-}
+		{
+			testName:    "Url with .org",
+			companyName: "innovex",
+			want:        "https://innovex.org/",
+		},
+		{
+			testName:    "Url with www",
+			companyName: "netflix",
+			want:        "https://www.netflix.com/",
+		},
+		{
+			testName:    "Company name in caps",
+			companyName: "NETFLIX",
+			want:        "https://www.netflix.com/",
+		},
+	}
+	for _, testCase := range tt {
+		testCase := testCase
+		t.Run(testCase.testName, func(t *testing.T) {
+			t.Parallel()
+			got := scrapers.GetUrls(testCase.companyName)
+			if got != testCase.want {
+				t.Errorf("Got URL:%s, Expected URL: %s", got, testCase.want)
+			}
+		})
 
-for _,tc := range tt {
-	t.Run(tc.company,func(t *testing.T){
-		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
-			io.WriteString(w,tc.htmlResponse)
-		}))
-		defer server.Close()
-		// baseURL := server.URL
-		result := scrapers.GetUrls(tc.company)
-		if result != tc.expectedURL {
-			t.Errorf("For %s: Expected Url: %s, but got: %s", tc.company,tc.expectedURL,result)
-		}
-	})
-}
-
+	}
 }
