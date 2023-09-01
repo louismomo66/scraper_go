@@ -12,24 +12,29 @@ func TestGetUrls(t *testing.T) {
 		companyName string
 		want        string
 	}{{
-		testName:    "Url without www",
-		companyName: "kfc ",
-		want:        "https://jfood.kfc.ug/",
+		"Url without www",
+		"kfc ",
+		"https://jfood.kfc.ug/",
 	},
 		{
-			testName:    "Url with .org",
-			companyName: "innovex",
-			want:        "https://innovex.org/",
+			"Url with .org",
+			"innovex",
+			"https://innovex.org/",
 		},
 		{
-			testName:    "Url with www",
-			companyName: "netflix",
-			want:        "https://www.netflix.com/",
+			"Url with www",
+			"netflix",
+			"https://www.netflix.com/",
 		},
 		{
-			testName:    "Company name in caps",
-			companyName: "NETFLIX",
-			want:        "https://www.netflix.com/",
+			"Company name in caps",
+			"NETFLIX",
+			"https://www.netflix.com/",
+		},
+		{
+			"Company name in two words",
+			"roke telecom",
+			"https://www.roketelkom.co.ug/",
 		},
 	}
 	for _, testCase := range tt {
@@ -83,4 +88,37 @@ func TestAboutUs(t *testing.T) {
 		})
 	}
 
+}
+
+func TestExtructEmail(t *testing.T) {
+	t.Parallel()
+
+	tt := []struct {
+		testName   string
+		aboutUsURL string
+		want       string
+	}{
+		{
+			"Extraction from contact-us",
+			"https://ug.liquidhome.tech/contact-us",
+			"ugsales@liquidtelecom.com",
+		},
+		{
+			"no email found",
+			"https://innovex.org/about-us/",
+			"",
+		},
+	}
+
+	for _, testCase := range tt {
+		testCase := testCase
+		t.Run(testCase.testName, func(t *testing.T) {
+			t.Parallel()
+
+			got := scrapers.ExtractEmail(testCase.aboutUsURL)
+			if got != testCase.want {
+				t.Errorf("Got %s, Expected %s", got, testCase.want)
+			}
+		})
+	}
 }

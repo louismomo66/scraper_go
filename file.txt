@@ -4,4 +4,3 @@ codeclinic
 jumia
 netlabs
 sunbirdAi
-dell

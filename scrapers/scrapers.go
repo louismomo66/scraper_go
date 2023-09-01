@@ -12,7 +12,8 @@ import (
 )
 
 func GetUrls(companyName string) string {
-	resp, err := http.Get("http://google.com/search?q=" + companyName)
+	escapedcompanyName := strings.ReplaceAll(companyName, " ", "+")
+	resp, err := http.Get("http://google.com/search?q=" + escapedcompanyName)
 	if err != nil {
 		panic(err)
 	}
@@ -35,24 +36,24 @@ func GetUrls(companyName string) string {
 			}
 		}
 	})
-	
-		urlResults := foundURL
 
-return urlResults
+	urlResults := foundURL
+
+	return urlResults
 }
 
-func ExtractEmail(content string) string { 
+func ExtractEmail(content string) string {
 
-	resp,err := http.Get(content)
+	resp, err := http.Get(content)
 	if err != nil {
 		fmt.Print(err)
 	}
 	defer resp.Body.Close()
-	data,err := io.ReadAll(resp.Body)
+	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println(err)
 	}
-	
+
 	re := regexp.MustCompile(`[\w\.-]+@[\w\.-]+`)
 	match := re.FindString(string(data))
 	return match
