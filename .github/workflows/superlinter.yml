@@ -10,7 +10,7 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           stable: "false"
-          go-version: "1.20.1"
+          go-version: "1.18"
 
       - name: Lint
         run: |
@@ -25,7 +25,11 @@ jobs:
           go tool cover -html=coverage.out -o=coverage.html
       
       - name: report
-        uses: actions/upload-artifact@v2
-        with:
-          name: coverage-report
-          path: coverage.html
+        uses: codecov/codecov-action@v2
+        env:
+          token: ${{ secrets.CODECOV_TOKEN }}
+      
+      - name: Add Codecov Badge to README
+        run: |
+          echo "[![Codecov](https://codecov.io/gh/louismomo66/scraper_go/branch/work_space/graph/badge.svg)](https://codecov.io/gh/louismomo/work_space)" >> README.md
+        shell: bash
