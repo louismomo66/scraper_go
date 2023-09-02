@@ -65,7 +65,7 @@ func TestAboutUs(t *testing.T) {
 		},
 		{
 			"With contactus",
-			"https://www.netflix.com/ug/",
+			"https://www.netflix.com/",
 			"https://help.netflix.com/contactus",
 		},
 		{

@@ -74,7 +74,7 @@ func AboutUs(companyURL string) string {
 
 	}
 
-	re := regexp.MustCompile(`(?i)<a[^>]+href=["']?([^"']+)["']?[^>]*>(?:\s*about\s*us\s*|about|contact\s*us)\s*</a>`)
+	re := regexp.MustCompile(`(?i)<a[^>]+href=["']([^"']+)["'][^>]*>(?:\s*about\s*us\s*|about|contact\s*us)\s*</a>`)
 	match := re.FindStringSubmatch(string(data))
 	if len(match) > 1 {
 		aboutUsURL = match[1]
