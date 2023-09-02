@@ -24,12 +24,9 @@ jobs:
           go tool cover -func=coverage.out
           go tool cover -html=coverage.out -o=coverage.html
       
-      - name: report
-        uses: codecov/codecov-action@v2
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
         env:
-          token: ${{ secrets.CODECOV_TOKEN }}
+         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        
       
-      - name: Add Codecov Badge to README
-        run: |
-          echo "[![Codecov](https://codecov.io/gh/louismomo66/scraper_go/branch/work_space/graph/badge.svg)](https://codecov.io/gh/louismomo/work_space)" >> README.md
-        shell: bash
