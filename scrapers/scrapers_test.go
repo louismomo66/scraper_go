@@ -17,11 +17,11 @@ func TestGetUrls(t *testing.T) {
 		// 	"kfc ",
 		// 	"https://jfood.kfc.ug/",
 		// },
-		{
-			"Url with .org",
-			"innovex",
-			"https://innovex.org/",
-		},
+		// {
+		// 	"Url with .org",
+		// 	"innovex",
+		// 	"https://innovex.org/",
+		// },
 		// {
 		// 	"Url with www",
 		// 	"netflix",
@@ -32,11 +32,11 @@ func TestGetUrls(t *testing.T) {
 		// 	"NETFLIX",
 		// 	"https://www.netflix.com/",
 		// },
-		// {
-		// 	"Company name in two words",
-		// 	"roke telecom",
-		// 	"https://www.roketelkom.co.ug/",
-		// },
+		{
+			"Company name in two words",
+			"roke telecom",
+			"https://www.roketelkom.co.ug/",
+		},
 	}
 	for _, testCase := range tt {
 		testCase := testCase
