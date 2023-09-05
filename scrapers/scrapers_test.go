@@ -12,26 +12,26 @@ func TestGetUrls(t *testing.T) {
 		companyName string
 		want        string
 	}{
-		// {
-		// 	"Url without www",
-		// 	"kfc ",
-		// 	"https://jfood.kfc.ug/",
-		// },
+		{
+			"Url without www",
+			"kfc ",
+			"https://jfood.kfc.ug/",
+		},
 		// {
 		// 	"Url with .org",
 		// 	"innovex",
 		// 	"https://www.innovex-inc.com/",
 		// },
-		// {
-		// 	"Url with www",
-		// 	"netflix",
-		// 	"https://www.netflix.com/",
-		// },
-		// {
-		// 	"Company name in caps",
-		// 	"NETFLIX",
-		// 	"https://www.netflix.com/",
-		// },
+		{
+			"Url with www",
+			"netflix",
+			"https://www.netflix.com/",
+		},
+		{
+			"Company name in caps",
+			"NETFLIX",
+			"https://www.netflix.com/",
+		},
 		{
 			"Company name in two words",
 			"roke telecom",
@@ -69,11 +69,11 @@ func TestAboutUs(t *testing.T) {
 		// 	"https://www.netflix.com/",
 		// 	"https://help.netflix.com/contactus",
 		// },
-		// {
-		// 	"With about",
-		// 	"http://www.netlabsug.org/",
-		// 	"http://www.netlabsug.org/website/about",
-		// },
+		{
+			"With about",
+			"http://www.netlabsug.org/",
+			"http://www.netlabsug.org/website/about",
+		},
 	}
 
 	for _, testCase := range tt {
