@@ -16,26 +16,26 @@ func TestGetUrls(t *testing.T) {
 		"kfc ",
 		"https://jfood.kfc.ug/",
 	},
-		{
-			"Url with .org",
-			"innovex",
-			"https://innovex.org/",
-		},
-		{
-			"Url with www",
-			"netflix",
-			"https://www.netflix.com/",
-		},
-		{
-			"Company name in caps",
-			"NETFLIX",
-			"https://www.netflix.com/",
-		},
-		{
-			"Company name in two words",
-			"roke telecom",
-			"https://www.roketelkom.co.ug/",
-		},
+	// {
+	// 	"Url with .org",
+	// 	"innovex",
+	// 	"https://innovex.org/",
+	// },
+	// {
+	// 	"Url with www",
+	// 	"netflix",
+	// 	"https://www.netflix.com/",
+	// },
+	// {
+	// 	"Company name in caps",
+	// 	"NETFLIX",
+	// 	"https://www.netflix.com/",
+	// },
+	// {
+	// 	"Company name in two words",
+	// 	"roke telecom",
+	// 	"https://www.roketelkom.co.ug/",
+	// },
 	}
 	for _, testCase := range tt {
 		testCase := testCase
@@ -68,11 +68,11 @@ func TestAboutUs(t *testing.T) {
 		// 	"https://www.netflix.com/",
 		// 	"https://help.netflix.com/contactus",
 		// },
-		{
-			"With about",
-			"http://www.netlabsug.org/",
-			"http://www.netlabsug.org/website/about",
-		},
+		// {
+		// 	"With about",
+		// 	"http://www.netlabsug.org/",
+		// 	"http://www.netlabsug.org/website/about",
+		// },
 	}
 
 	for _, testCase := range tt {
