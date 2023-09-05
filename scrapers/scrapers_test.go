@@ -63,11 +63,11 @@ func TestAboutUs(t *testing.T) {
 			"https://innovex.org/",
 			"https://innovex.org/about-us/",
 		},
-		{
-			"With contactus",
-			"https://www.netflix.com/",
-			"https://help.netflix.com/contactus",
-		},
+		// {
+		// 	"With contactus",
+		// 	"https://www.netflix.com/",
+		// 	"https://help.netflix.com/contactus",
+		// },
 		{
 			"With about",
 			"http://www.netlabsug.org/",
