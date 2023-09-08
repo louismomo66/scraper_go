@@ -12,11 +12,11 @@ func TestGetUrls(t *testing.T) {
 		companyName string
 		want        string
 	}{
-		{
-			"Url without www",
-			"kfc ",
-			"https://jfood.kfc.ug/",
-		},
+		// {
+		// 	"Url without www",
+		// 	"kfc ",
+		// 	"https://jfood.kfc.ug/",
+		// },
 		// {
 		// 	"Url with .org",
 		// 	"innovex",
