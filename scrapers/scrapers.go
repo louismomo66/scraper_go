@@ -1,7 +1,6 @@
 package scrapers
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -43,18 +42,18 @@ func GetUrls(companyName string) string {
 }
 
 func ExtractEmail(content string) string {
-
 	resp, err := http.Get(content)
 	if err != nil {
-		fmt.Print(err)
+		log.Println(err)
 	}
 	defer resp.Body.Close()
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 
-	re := regexp.MustCompile(`[\w\.-]+@[\w\.-]+`)
+	// re := regexp.MustCompile(`[\w\.-]+@[\w\.-]+`)
+	re := regexp.MustCompile(`[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}`)
 	match := re.FindString(string(data))
 	return match
 }
@@ -63,14 +62,14 @@ func AboutUs(companyURL string) string {
 	aboutUsURL := ""
 	resp, err := http.Get(companyURL)
 	if err != nil {
-		fmt.Printf("Error fetching %s: %v\n", companyURL, err)
+		log.Printf("Error fetching %s: %v\n", companyURL, err)
 
 	}
 	defer resp.Body.Close()
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Printf("Error reading respinse body: %v\n", err)
+		log.Printf("Error reading respinse body: %v\n", err)
 
 	}
 

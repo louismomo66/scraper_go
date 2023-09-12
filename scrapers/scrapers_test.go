@@ -47,13 +47,11 @@ func TestGetUrls(t *testing.T) {
 				t.Errorf("Got URL:%s, Expected URL: %s", got, testCase.want)
 			}
 		})
-
 	}
 }
 
 func TestAboutUs(t *testing.T) {
 	t.Parallel()
-
 	tt := []struct {
 		testName   string
 		companyURL string
@@ -88,12 +86,10 @@ func TestAboutUs(t *testing.T) {
 
 		})
 	}
-
 }
 
 func TestExtructEmail(t *testing.T) {
 	t.Parallel()
-
 	tt := []struct {
 		testName   string
 		aboutUsURL string

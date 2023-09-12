@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 )
-func ReadTxt(path string) []string {
 
+func ReadTxt(path string) []string {
 	readFile, err := os.Open(path)
 	if err != nil {
 		log.Println(err)

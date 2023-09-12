@@ -1,6 +1,6 @@
 innovex:  
 codebits: hello@codebits.io 
 codeclinic: dentist@codeclinic.ug 
-jumia: nr@context 
+jumia:  
 netlabs: gra@netlabsug.org 
 sunbirdAi: info@sunbird.ai 

@@ -54,6 +54,5 @@ func TestReadTxt(t *testing.T) {
 				}
 			}
 		})
-
 	}
 }

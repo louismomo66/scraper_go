@@ -9,7 +9,6 @@ import (
 )
 
 func main() {
-
 	companyName := readfile.ReadTxt("file.txt")
 	file, err := os.Create("results.txt")
 	if err != nil {
@@ -21,12 +20,12 @@ func main() {
 		aboutUsLink := scrape.AboutUs(companyUrls)
 		email := scrape.ExtractEmail(aboutUsLink)
 		result := fmt.Sprintf("%s: %s \n", name, email)
-		fmt.Println(result)
+		log.Println(result)
 		if result != "" {
 			data := []byte(result)
 			_, err := file.Write(data)
 			if err != nil {
-				log.Fatal(err)
+				log.Printf("Error: %v", err)
 			}
 		}
 	}
