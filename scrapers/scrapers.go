@@ -37,7 +37,6 @@ func GetUrls(companyName string) string {
 	})
 
 	urlResults := foundURL
-
 	return urlResults
 }
 
@@ -55,7 +54,6 @@ func ExtractEmail(content string) string {
 	// re := regexp.MustCompile(`[\w\.-]+@[\w\.-]+`)
 	re := regexp.MustCompile(`[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}`)
 	match := re.FindString(string(data))
-
 	return match
 }
 
