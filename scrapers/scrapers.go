@@ -55,6 +55,7 @@ func ExtractEmail(content string) string {
 	// re := regexp.MustCompile(`[\w\.-]+@[\w\.-]+`)
 	re := regexp.MustCompile(`[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}`)
 	match := re.FindString(string(data))
+
 	return match
 }
 
@@ -63,16 +64,12 @@ func AboutUs(companyURL string) string {
 	resp, err := http.Get(companyURL)
 	if err != nil {
 		log.Printf("Error fetching %s: %v\n", companyURL, err)
-
 	}
 	defer resp.Body.Close()
-
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("Error reading respinse body: %v\n", err)
-
 	}
-
 	re := regexp.MustCompile(`(?i)<a[^>]+href=["']([^"']+)["'][^>]*>(?:\s*about\s*us\s*|about|contact\s*us)\s*</a>`)
 	match := re.FindStringSubmatch(string(data))
 	if len(match) > 1 {
