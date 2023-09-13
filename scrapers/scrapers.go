@@ -14,13 +14,15 @@ func GetUrls(companyName string) string {
 	escapedcompanyName := strings.ReplaceAll(companyName, " ", "+")
 	resp, err := http.Get("http://google.com/search?q=" + escapedcompanyName)
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return ""
 	}
 	defer resp.Body.Close()
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
 		log.Println(err)
+		return ""
 	}
 	foundURL := ""
 	doc.Find("body a").Each(func(index int, item *goquery.Selection) {
@@ -36,19 +38,20 @@ func GetUrls(companyName string) string {
 		}
 	})
 
-	urlResults := foundURL
-	return urlResults
+	return foundURL
 }
 
 func ExtractEmail(content string) string {
 	resp, err := http.Get(content)
 	if err != nil {
 		log.Println(err)
+		return ""
 	}
 	defer resp.Body.Close()
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Println(err)
+		return ""
 	}
 
 	// re := regexp.MustCompile(`[\w\.-]+@[\w\.-]+`)
@@ -62,11 +65,14 @@ func AboutUs(companyURL string) string {
 	resp, err := http.Get(companyURL)
 	if err != nil {
 		log.Printf("Error fetching %s: %v\n", companyURL, err)
+		return ""
 	}
 	defer resp.Body.Close()
+
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("Error reading respinse body: %v\n", err)
+		return ""
 	}
 	re := regexp.MustCompile(`(?i)<a[^>]+href=["']([^"']+)["'][^>]*>(?:\s*about\s*us\s*|about|contact\s*us)\s*</a>`)
 	match := re.FindStringSubmatch(string(data))
