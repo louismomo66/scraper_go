@@ -1,6 +1,7 @@
 package scrapers
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -12,7 +13,8 @@ import (
 
 func GetUrls(companyName string) string {
 	escapedcompanyName := strings.ReplaceAll(companyName, " ", "+")
-	resp, err := http.Get("http://google.com/search?q=" + escapedcompanyName)
+	url := fmt.Sprintf("http://google.com/search?q=%s", escapedcompanyName)
+	resp, err := http.Get(url)
 	if err != nil {
 		log.Println(err)
 		return ""
