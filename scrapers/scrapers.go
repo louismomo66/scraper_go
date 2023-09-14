@@ -13,8 +13,8 @@ import (
 
 func GetUrls(companyName string) string {
 	escapedcompanyName := strings.ReplaceAll(companyName, " ", "+")
-	page_link := fmt.Sprintf("http://google.com/search?q=%s", escapedcompanyName)
-	resp, err := http.Get(page_link)
+	page_Link := fmt.Sprintf("http://google.com/search?q=%s", escapedcompanyName)
+	resp, err := http.Get(page_Link)
 	if err != nil {
 		log.Println(err)
 		return ""
