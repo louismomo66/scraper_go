@@ -19,11 +19,12 @@ func TestGetUrls(t *testing.T) {
 		want      string
 		wantedErr error
 	}{
-		// {
-		// 	"Url without www",
-		// 	"kfc ",
-		// 	"https://jfood.kfc.ug/",
-		// },
+		{
+			"Url without www",
+			args{"mukwano"},
+			"https://www.mukwano.com/",
+			nil,
+		},
 		// {
 		// 	"Url with .org",
 		// 	"innovex",
