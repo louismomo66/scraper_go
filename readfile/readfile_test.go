@@ -27,7 +27,7 @@ func TestReadTxt(t *testing.T) {
 				fileName: "/home/louis/Desktop/scrape/file1.txt",
 			},
 			[]string{},
-			errors.New("error occured trying to open file open /home/louis/Desktop/scrape/file1.txt: no such file or directory"),
+			errors.New("error occurred trying to open file open /home/louis/Desktop/scrape/file1.txt: no such file or directory"),
 		},
 		{
 			"existentfile",
@@ -43,7 +43,7 @@ func TestReadTxt(t *testing.T) {
 			nil,
 		},
 	}
-	for i := range tests {
+	for i := range tests { //nolint
 		i := i
 		t.Run(tests[i].name, func(t *testing.T) {
 			t.Parallel()

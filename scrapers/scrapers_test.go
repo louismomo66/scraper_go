@@ -49,7 +49,7 @@ func TestGetUrls(t *testing.T) {
 			nil,
 		},
 	}
-	for i := range tt {
+	for i := range tt { //nolint
 		i := i
 		t.Run(tt[i].testName, func(t *testing.T) {
 			t.Parallel()
