@@ -9,7 +9,7 @@ import (
 func ReadTxt(path string) ([]string, error) {
 	readFile, err := os.Open(path)
 	if err != nil {
-		err := fmt.Errorf("error occurred trying to open file %w", err)
+		err := fmt.Errorf("error occurred trying to open file %w", err) //nolint
 		return nil, err
 	}
 

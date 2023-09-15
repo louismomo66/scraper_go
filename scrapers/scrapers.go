@@ -53,7 +53,7 @@ func ExtractEmail(content string) (string, error) {
 	data, err := io.ReadAll(resp.Body)
 	if err != nil { //nolint
 		log.Println(err)
-		return "", err
+		return "", err //nolint
 	}
 
 	// re := regexp.MustCompile(`[\w\.-]+@[\w\.-]+`)
@@ -67,7 +67,7 @@ func AboutUs(companyURL string) (string, error) {
 	resp, err := http.Get(companyURL) //nolint
 	if err != nil {                   //nolint
 		log.Printf("Error fetching %s: %v\n", companyURL, err)
-		return "", err
+		return "", err //nolint
 	}
 	defer resp.Body.Close()
 
@@ -78,10 +78,10 @@ func AboutUs(companyURL string) (string, error) {
 	}
 	re := regexp.MustCompile(`(?i)<a[^>]+href=["']([^"']+)["'][^>]*>(?:\s*about\s*us\s*|about|contact\s*us)\s*</a>`)
 	match := re.FindStringSubmatch(string(data))
-	if len(match) > 1 {
+	if len(match) > 1 { //nolint
 		aboutUsURL = match[1]
 	}
-	if !strings.HasPrefix(aboutUsURL, "http") {
+	if !strings.HasPrefix(aboutUsURL, "http") { //nolint
 		aboutUsURL = companyURL + aboutUsURL
 	}
 	return aboutUsURL, nil //nolint

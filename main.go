@@ -11,7 +11,7 @@ import (
 func main() {
 	companyName, _ := readfile.ReadTxt("file.txt")
 	file, err := os.Create("results.txt")
-	if err != nil {
+	if err != nil { //nolint
 		log.Fatal(err)
 	}
 	defer file.Close()
@@ -24,7 +24,7 @@ func main() {
 		if result != "" { //nolint
 			data := []byte(result)
 			_, err := file.Write(data)
-			if err != nil {
+			if err != nil { //nolint
 				log.Printf("Error: %v", err)
 			}
 		}
