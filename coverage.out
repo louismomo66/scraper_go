@@ -4,11 +4,11 @@ scraper/readfile/readfile.go:16.2,22.25 5 1
 scraper/readfile/readfile.go:26.2,26.23 1 1
 scraper/readfile/readfile.go:11.16,14.3 2 1
 scraper/readfile/readfile.go:22.25,24.3 1 1
-scraper/scrapers/scrapers.go:14.50,18.16 4 1
+scraper/scrapers/scrapers.go:14.50,18.20 4 1
 scraper/scrapers/scrapers.go:22.2,25.16 3 1
 scraper/scrapers/scrapers.go:29.2,30.67 2 1
 scraper/scrapers/scrapers.go:43.2,43.22 1 1
-scraper/scrapers/scrapers.go:18.16,21.3 2 0
+scraper/scrapers/scrapers.go:18.20,21.3 2 0
 scraper/scrapers/scrapers.go:25.16,28.3 2 0
 scraper/scrapers/scrapers.go:30.67,31.21 1 1
 scraper/scrapers/scrapers.go:31.21,35.42 3 1

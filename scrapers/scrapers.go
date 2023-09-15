@@ -14,9 +14,9 @@ import (
 func GetUrls(companyName string) (string, error) {
 	escapedCompanyName := strings.ReplaceAll(companyName, " ", "+")
 	pageLink := fmt.Sprintf("http://google.com/search?q=%s", escapedCompanyName)
-	resp, err := http.Get(pageLink)
-	if err != nil {
-		log.Println(err)
+	resp, httpErr := http.Get(pageLink) //nolint
+	if httpErr != nil {
+		err := fmt.Errorf("an error occurred trying to scrapper google for %s %w", companyName, httpErr)
 		return "", err
 	}
 	defer resp.Body.Close()
@@ -44,7 +44,7 @@ func GetUrls(companyName string) (string, error) {
 }
 
 func ExtractEmail(content string) (string, error) {
-	resp, err := http.Get(content)
+	resp, err := http.Get(content) //nolint
 	if err != nil {
 		log.Println(err)
 		return "", err
@@ -64,7 +64,7 @@ func ExtractEmail(content string) (string, error) {
 
 func AboutUs(companyURL string) (string, error) {
 	aboutUsURL := ""
-	resp, err := http.Get(companyURL)
+	resp, err := http.Get(companyURL) //nolint
 	if err != nil {
 		log.Printf("Error fetching %s: %v\n", companyURL, err)
 		return "", err
