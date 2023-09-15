@@ -9,16 +9,16 @@ import (
 )
 
 func main() {
-	companyName := readfile.ReadTxt("file.txt")
+	companyName, _ := readfile.ReadTxt("file.txt")
 	file, err := os.Create("results.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
 	for _, name := range companyName {
-		companyUrls := scrape.GetUrls(name)
-		aboutUsLink := scrape.AboutUs(companyUrls)
-		email := scrape.ExtractEmail(aboutUsLink)
+		companyUrls, _ := scrape.GetUrls(name)
+		aboutUsLink, _ := scrape.AboutUs(companyUrls)
+		email, _ := scrape.ExtractEmail(aboutUsLink)
 		result := fmt.Sprintf("%s: %s \n", name, email)
 		log.Println(result)
 		if result != "" {

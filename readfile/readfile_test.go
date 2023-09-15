@@ -1,8 +1,8 @@
 package readfile_test
 
 import (
+	"errors"
 	"fmt"
-	"os"
 	"scraper/readfile"
 	"testing"
 
@@ -11,60 +11,53 @@ import (
 
 func TestReadTxt(t *testing.T) {
 	t.Parallel()
+	type args struct {
+		fileName string
+	}
 	tests := []struct {
-		name  string
-		input string
-		want  []string
+		name      string
+		input     args
+		want      []string
+		wantedErr error
 	}{
 		{
-			"multiplelines",
-			"codebits\ncodeclinic\njumia\n",
-			[]string{"codebits", "codeclinic", "jumia"},
-		},
-		{
-			"singleline",
-			"foodhub",
-			[]string{"foodhub"},
-		},
-		{
-			"nonexistentfile",
-			"",
+			"nonexistent",
+			// "codebits\ncodeclinic\njumia\n",
+			args{
+				fileName: "/home/louis/Desktop/scrape/file1.txt",
+			},
 			[]string{},
+			errors.New("error occured trying to open file open /home/louis/Desktop/scrape/file1.txt: no such file or directory"),
+		},
+		{
+			"existentfile",
+			args{
+				fileName: "/home/louis/Desktop/scrape/file.txt",
+			},
+			[]string{"innovex",
+				"codebits",
+				"codeclinic",
+				"jumia",
+				"netlabs",
+				"sunbirdAi"},
+			nil,
 		},
 	}
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
+	for i := range tests {
+		i := i
+		t.Run(tests[i].name, func(t *testing.T) {
 			t.Parallel()
-			tempFile, err := os.CreateTemp("", "testfile.txt")
 
-			if err != nil {
-				// t.Fatalf("Failed to create temporary file %v", err)
-				assert.Fail(t, fmt.Sprintf("Unexpected error: %q", err))
+			result, err := readfile.ReadTxt(tests[i].input.fileName)
+			if err != nil && tests[i].wantedErr == nil {
+				assert.Fail(t, fmt.Sprintf("Error not expected but got one:\n"+"error: %q", err))
 				return
 			}
-
-			defer os.Remove(tempFile.Name())
-
-			defer tempFile.Close()
-
-			_, err = tempFile.WriteString(tc.input)
-			if err != nil {
-				// t.Fatalf("Failed to write test data to temporary test file: %v", err)
-				assert.Fail(t, fmt.Sprintf("Unexpected error: %q", err))
+			if tests[i].wantedErr != nil {
+				assert.EqualError(t, err, tests[i].wantedErr.Error())
 				return
 			}
-
-			result := readfile.ReadTxt(tempFile.Name())
-			if len(result) != len(tc.want) {
-				t.Errorf("Expected %d lines,but got %d lines", len(tc.want), len(result))
-			}
-
-			for i := range tc.want {
-				if result[i] != tc.want[i] {
-					t.Errorf("%s: Expected line %d to be \"%s\", but got \"%s\"", tc.name, i+1, tc.want[i], result[i])
-				}
-			}
+			assert.Equal(t, tests[i].want, result)
 		})
 	}
 }

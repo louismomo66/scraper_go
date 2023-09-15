@@ -11,20 +11,20 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func GetUrls(companyName string) string {
+func GetUrls(companyName string) (string, error) {
 	escapedCompanyName := strings.ReplaceAll(companyName, " ", "+")
 	pageLink := fmt.Sprintf("http://google.com/search?q=%s", escapedCompanyName)
 	resp, err := http.Get(pageLink)
 	if err != nil {
 		log.Println(err)
-		return ""
+		return "", err
 	}
 	defer resp.Body.Close()
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
 		log.Println(err)
-		return ""
+		return "", err
 	}
 	foundURL := ""
 	doc.Find("body a").Each(func(index int, item *goquery.Selection) {
@@ -40,41 +40,41 @@ func GetUrls(companyName string) string {
 		}
 	})
 
-	return foundURL
+	return foundURL, nil
 }
 
-func ExtractEmail(content string) string {
+func ExtractEmail(content string) (string, error) {
 	resp, err := http.Get(content)
 	if err != nil {
 		log.Println(err)
-		return ""
+		return "", err
 	}
 	defer resp.Body.Close()
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Println(err)
-		return ""
+		return "", err
 	}
 
 	// re := regexp.MustCompile(`[\w\.-]+@[\w\.-]+`)
 	re := regexp.MustCompile(`[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}`)
 	match := re.FindString(string(data))
-	return match
+	return match, nil
 }
 
-func AboutUs(companyURL string) string {
+func AboutUs(companyURL string) (string, error) {
 	aboutUsURL := ""
 	resp, err := http.Get(companyURL)
 	if err != nil {
 		log.Printf("Error fetching %s: %v\n", companyURL, err)
-		return ""
+		return "", err
 	}
 	defer resp.Body.Close()
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("Error reading respinse body: %v\n", err)
-		return ""
+		return "", err
 	}
 	re := regexp.MustCompile(`(?i)<a[^>]+href=["']([^"']+)["'][^>]*>(?:\s*about\s*us\s*|about|contact\s*us)\s*</a>`)
 	match := re.FindStringSubmatch(string(data))
@@ -84,5 +84,5 @@ func AboutUs(companyURL string) string {
 	if !strings.HasPrefix(aboutUsURL, "http") {
 		aboutUsURL = companyURL + aboutUsURL
 	}
-	return aboutUsURL
+	return aboutUsURL, nil
 }

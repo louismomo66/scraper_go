@@ -2,14 +2,15 @@ package readfile
 
 import (
 	"bufio"
-	"log"
+	"fmt"
 	"os"
 )
 
-func ReadTxt(path string) []string {
+func ReadTxt(path string) ([]string, error) {
 	readFile, err := os.Open(path)
 	if err != nil {
-		log.Println(err)
+		err := fmt.Errorf("error occured trying to open file %w", err)
+		return nil, err
 	}
 
 	defer readFile.Close()
@@ -22,5 +23,5 @@ func ReadTxt(path string) []string {
 		fileLines = append(fileLines, fileScanner.Text())
 	}
 
-	return fileLines
+	return fileLines, nil
 }
