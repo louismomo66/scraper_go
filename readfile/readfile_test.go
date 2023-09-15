@@ -1,9 +1,12 @@
 package readfile_test
 
 import (
+	"fmt"
 	"os"
 	"scraper/readfile"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestReadTxt(t *testing.T) {
@@ -31,7 +34,9 @@ func TestReadTxt(t *testing.T) {
 			tempFile, err := os.CreateTemp("", "testfile.txt")
 
 			if err != nil {
-				t.Fatalf("Failed to create temporary file %v", err)
+				// t.Fatalf("Failed to create temporary file %v", err)
+				assert.Fail(t, fmt.Sprintf("Unexpected error: %q", err))
+				return
 			}
 
 			defer os.Remove(tempFile.Name())
@@ -40,7 +45,9 @@ func TestReadTxt(t *testing.T) {
 
 			_, err = tempFile.WriteString(tc.input)
 			if err != nil {
-				t.Fatalf("Failed to write test data to temporary test file: %v", err)
+				// t.Fatalf("Failed to write test data to temporary test file: %v", err)
+				assert.Fail(t, fmt.Sprintf("Unexpected error: %q", err))
+				return
 			}
 
 			result := readfile.ReadTxt(tempFile.Name())
