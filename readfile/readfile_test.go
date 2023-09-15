@@ -32,7 +32,7 @@ func TestReadTxt(t *testing.T) {
 		{
 			"existentfile",
 			args{
-				fileName: "/home/louis/Desktop/scrape/file.txt",
+				fileName: "../file.txt",
 			},
 			[]string{"innovex",
 				"codebits",
