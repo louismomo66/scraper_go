@@ -26,6 +26,11 @@ func TestReadTxt(t *testing.T) {
 			"foodhub",
 			[]string{"foodhub"},
 		},
+		{
+			"nonexistentfile",
+			"",
+			[]string{},
+		},
 	}
 	for _, tc := range tests {
 		tc := tc
