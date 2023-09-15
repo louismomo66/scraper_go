@@ -1,17 +1,23 @@
 package scrapers_test
 
 import (
+	"fmt"
 	"scraper/scrapers"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetUrls(t *testing.T) {
 	t.Parallel()
-	tt := []struct {
-		testName    string
+	type args struct {
 		companyName string
-		want        string
-		wantedErr   error
+	}
+	tt := []struct {
+		testName  string
+		nameAgrs  args
+		want      string
+		wantedErr error
 	}{
 		// {
 		// 	"Url without www",
@@ -25,32 +31,38 @@ func TestGetUrls(t *testing.T) {
 		// },
 		{
 			"Url with www",
-			"netflix",
+			args{"netflix"},
 			"https://www.netflix.com/",
 			nil,
 		},
 		{
 			"Company name in caps",
-			"NETFLIX",
+			args{"NETFLIX"},
 			"https://www.netflix.com/",
 			nil,
 		},
 		{
 			"Company name in two words",
-			"roke telecom",
+			args{"roke telecom"},
 			"https://www.roketelkom.co.ug/",
 			nil,
 		},
 	}
-	for _, testCase := range tt {
-		testCase := testCase
-		t.Run(testCase.testName, func(t *testing.T) {
+	for i := range tt {
+		i := i
+		t.Run(tt[i].testName, func(t *testing.T) {
 			t.Parallel()
-			got, err := scrapers.GetUrls(testCase.companyName)
-			if err != nil && got != testCase.want {
-				t.Errorf("Got URL:%s, Expected URL: %s", got, testCase.want)
+			got, err := scrapers.GetUrls(tt[i].nameAgrs.companyName)
+			if err != nil && tt[i].wantedErr == nil {
+				// t.Errorf("Got URL:%s, Expected URL: %s", got, tt[i].want)
+				assert.Fail(t, fmt.Sprintf("Error not expected but got one:\n"+"error: %q", err))
 				return
 			}
+			if tt[i].wantedErr != nil {
+				assert.EqualError(t, err, tt[i].wantedErr.Error())
+				return
+			}
+			assert.Equal(t, tt[i].want, got)
 		})
 	}
 }
@@ -83,15 +95,22 @@ func TestAboutUs(t *testing.T) {
 		},
 	}
 
-	for _, testCase := range tt {
-		testCase := testCase
-		t.Run(testCase.testName, func(t *testing.T) {
+	for i := range tt {
+		i := i
+		t.Run(tt[i].testName, func(t *testing.T) {
 			t.Parallel()
 
-			got, err := scrapers.AboutUs(testCase.companyURL)
-			if err != nil && got != testCase.want {
-				t.Errorf("Got URL:%s, Expected URL: %s", got, testCase.want)
+			got, err := scrapers.AboutUs(tt[i].companyURL)
+			if err != nil && tt[i].wantedErr == nil {
+				// t.Errorf("Got URL:%s, Expected URL: %s", got, testCase.want)
+				assert.Fail(t, fmt.Sprintf("Error not expected but got one:\n"+"error: %q", err))
+				return
 			}
+			if tt[i].wantedErr != nil {
+				assert.EqualError(t, err, tt[i].wantedErr.Error())
+				return
+			}
+			assert.Equal(t, tt[i].want, got)
 
 		})
 	}
