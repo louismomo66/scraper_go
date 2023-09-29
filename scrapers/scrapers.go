@@ -11,12 +11,12 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func GetUrls(companyName string) (string, error) {
-	escapedCompanyName := strings.ReplaceAll(companyName, " ", "+")
-	pageLink := fmt.Sprintf("http://google.com/search?q=%s", escapedCompanyName)
+func GetUrls(baseURL, companyName string) (string, error) {
+	fullCompanyName := strings.ReplaceAll(companyName, " ", "+")
+	pageLink := fmt.Sprintf("%s/search?q=%s", baseURL, fullCompanyName)
 	resp, httpErr := http.Get(pageLink) //nolint
 	if httpErr != nil {                 //nolint
-		err := fmt.Errorf("an error occurred trying to scrapper google for %s %w", companyName, httpErr)
+		err := fmt.Errorf("an error occured trying to scrape google for %s %w", companyName, httpErr)
 		return "", err
 	}
 	defer resp.Body.Close()
@@ -26,12 +26,14 @@ func GetUrls(companyName string) (string, error) {
 		log.Println(err)
 		return "", err //nolint
 	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return "", fmt.Errorf("non-successful response returned with status code: %d", resp.StatusCode)
+	}
 	foundURL := ""
 	doc.Find("body a").Each(func(index int, item *goquery.Selection) { //nolint
 		if foundURL == "" {
 			linkTag := item
 			link, _ := linkTag.Attr("href")
-
 			if strings.HasPrefix(link, "/url?q=") {
 				link = strings.TrimPrefix(link, "/url?q=")
 				link = strings.Split(link, "&")[0]
@@ -39,50 +41,62 @@ func GetUrls(companyName string) (string, error) {
 			}
 		}
 	})
-
 	return foundURL, nil
-}
-
-func ExtractEmail(content string) (string, error) {
-	resp, err := http.Get(content) //nolint
-	if err != nil {
-		log.Println(err)
-		return "", err //nolint
-	}
-	defer resp.Body.Close()
-	data, err := io.ReadAll(resp.Body)
-	if err != nil { //nolint
-		log.Println(err)
-		return "", err //nolint
-	}
-
-	// re := regexp.MustCompile(`[\w\.-]+@[\w\.-]+`)
-	re := regexp.MustCompile(`[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}`)
-	match := re.FindString(string(data))
-	return match, nil //nolint
 }
 
 func AboutUs(companyURL string) (string, error) {
 	aboutUsURL := ""
-	resp, err := http.Get(companyURL) //nolint
-	if err != nil {                   //nolint
+	resp, err := http.Get(companyURL)
+	if err != nil {
 		log.Printf("Error fetching %s: %v\n", companyURL, err)
-		return "", err //nolint
+		return "", err
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		log.Printf("received non-200 status code: %d", resp.StatusCode)
+		return "", fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("Error reading respinse body: %v\n", err)
-		return "", err //nolint
+		log.Printf("Error reading response body: %v\n", err)
+		return "", err
 	}
 	re := regexp.MustCompile(`(?i)<a[^>]+href=["']([^"']+)["'][^>]*>(?:\s*about\s*us\s*|about|contact\s*us)\s*</a>`)
 	match := re.FindStringSubmatch(string(data))
-	if len(match) > 1 { //nolint
+	if len(match) > 1 {
 		aboutUsURL = match[1]
 	}
-	if !strings.HasPrefix(aboutUsURL, "http") { //nolint
+	if aboutUsURL == "" {
+		return "", nil
+	}
+	if !strings.HasPrefix(aboutUsURL, "http") {
 		aboutUsURL = companyURL + aboutUsURL
 	}
-	return aboutUsURL, nil //nolint
+	return aboutUsURL, nil
+}
+
+func ExtractEmail(content string) (string, error) {
+	resp, err := http.Get(content)
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		log.Printf("received non-200 status code: %d", resp.StatusCode)
+		return "", fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
+
+	re := regexp.MustCompile(`[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}`)
+	match := re.FindString(string(data))
+	return match, nil
+
 }

@@ -1,152 +1,173 @@
-package scrapers_test
+package scrapers
 
 import (
 	"fmt"
-	"scraper/scrapers"
+	"net/http"
+	"net/http/httptest"
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGetUrls(t *testing.T) {
-	t.Parallel()
-	type args struct {
-		companyName string
-	}
-	tt := []struct {
-		testName  string
-		nameAgrs  args
-		want      string
-		wantedErr error
+	testTable := []struct {
+		name          string
+		companyName   string
+		serverHandler http.HandlerFunc
+		expectedUrl   string
+		expectedErr   bool
 	}{
 		{
-			"Url without www",
-			args{"mukwano"},
-			"https://www.mukwano.com/",
-			nil,
+			name:        "Successful",
+			companyName: "netlabs",
+			serverHandler: func(w http.ResponseWriter, r *http.Request) {
+				fmt.Fprintln(w, `<a href="/url?q=http://www.netlabsug.org/">Netlabs UG</a>`)
+			},
+			expectedUrl: "http://www.netlabsug.org/",
+			expectedErr: false,
 		},
-		// {
-		// 	"Url with .org",
-		// 	"innovex",
-		// 	"https://www.innovex-inc.com/",
-		// },
+
 		{
-			"Url with www",
-			args{"netflix"},
-			"https://www.netflix.com/",
-			nil,
-		},
-		{
-			"Company name in caps",
-			args{"NETFLIX"},
-			"https://www.netflix.com/",
-			nil,
+			name:        "HTTP error",
+			companyName: "dummy",
+			serverHandler: func(w http.ResponseWriter, r *http.Request) {
+				http.Error(w, "test error", http.StatusInternalServerError)
+			},
+			expectedUrl: "",
+			expectedErr: true,
 		},
 		{
-			"Company name in two words",
-			args{"roke telecom"},
-			"https://www.roketelkom.co.ug/",
-			nil,
+			name:        "Non- successful status code",
+			companyName: "any",
+			serverHandler: func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusNotFound)
+			},
+			expectedUrl: "",
+			expectedErr: true,
 		},
 	}
-	for i := range tt { //nolint
-		i := i
-		t.Run(tt[i].testName, func(t *testing.T) {
-			t.Parallel()
-			got, err := scrapers.GetUrls(tt[i].nameAgrs.companyName)
-			if err != nil && tt[i].wantedErr == nil {
-				// t.Errorf("Got URL:%s, Expected URL: %s", got, tt[i].want)
-				assert.Fail(t, fmt.Sprintf("Error not expected but got one:\n"+"error: %q", err))
-				return
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			ts := httptest.NewServer(tc.serverHandler)
+			defer ts.Close()
+			url, err := GetUrls(ts.URL, tc.companyName)
+			if tc.expectedErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tc.expectedUrl, url)
 			}
-			if tt[i].wantedErr != nil {
-				assert.EqualError(t, err, tt[i].wantedErr.Error())
-				return
-			}
-			assert.Equal(t, tt[i].want, got)
 		})
 	}
+
 }
 
 func TestAboutUs(t *testing.T) {
-	t.Parallel()
-	tt := []struct {
-		testName   string
-		companyURL string
-		want       string
-		wantedErr  error
+	testTable := []struct {
+		name            string
+		serverHandler   http.HandlerFunc
+		expectedAboutUs string
+		expectedErr     error
 	}{
 		{
-			"With about-us",
-			"https://innovex.org/",
-			"https://innovex.org/about-us/",
-			nil,
+			name: "Extract_aboutUs_Link",
+			serverHandler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				fmt.Fprintln(w, `<a href="/about-us">About Us</a>`)
+			}),
 		},
-		// {
-		// 	"With contactus",
-		// 	"https://www.netflix.com/",
-		// 	"https://help.netflix.com/contactus",
-		//  nil,
-		// },
 		{
-			"With about",
-			"http://www.netlabsug.org/",
-			"http://www.netlabsug.org/website/about",
-			nil,
+			name: "HTTP_error",
+			serverHandler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			}),
+			expectedErr: fmt.Errorf("unexpected status code: 500"),
+		},
+		{
+			name: "Non-successful_status_code",
+			serverHandler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				http.Error(w, "Not Found", http.StatusNotFound)
+			}),
+			expectedErr: fmt.Errorf("unexpected status code: 404"),
 		},
 	}
 
-	for i := range tt {
-		i := i
-		t.Run(tt[i].testName, func(t *testing.T) {
-			t.Parallel()
-
-			got, err := scrapers.AboutUs(tt[i].companyURL)
-			if err != nil && tt[i].wantedErr == nil {
-				// t.Errorf("Got URL:%s, Expected URL: %s", got, testCase.want)
-				assert.Fail(t, fmt.Sprintf("Error not expected but got one:\n"+"error: %q", err))
-				return
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			ts := httptest.NewServer(tc.serverHandler)
+			defer ts.Close()
+			if tc.name == "Extract_aboutUs_Link" {
+				tc.expectedAboutUs = ts.URL + "/about-us"
+			} else if tc.name == "No_relevant_link" {
+				tc.expectedAboutUs = ""
 			}
-			if tt[i].wantedErr != nil {
-				assert.EqualError(t, err, tt[i].wantedErr.Error())
-				return
+			got, err := AboutUs(ts.URL)
+			if !reflect.DeepEqual(err, tc.expectedErr) {
+				t.Fatalf("Expected error: %v, got: %v", tc.expectedErr, err)
 			}
-			assert.Equal(t, tt[i].want, got)
-
+			if got != tc.expectedAboutUs {
+				t.Fatalf("Expected AboutUS URL: %s, got: %s", tc.expectedAboutUs, got)
+			}
 		})
 	}
 }
 
-func TestExtructEmail(t *testing.T) {
-	t.Parallel()
+func TestExtractEmail(t *testing.T) {
 	tt := []struct {
-		testName   string
-		aboutUsURL string
-		want       string
-		wantedErr  error
+		name          string
+		content       string
+		serverHandler http.HandlerFunc
+		expectedEmail string
+		expectedErr   bool
 	}{
 		{
-			"Extraction from contact-us",
-			"https://ug.liquidhome.tech/contact-us",
-			"ugsales@liquidtelecom.com",
-			nil,
+			name:    "Success",
+			content: "dummy",
+			serverHandler: func(w http.ResponseWriter, r *http.Request) {
+				fmt.Fprintln(w, `Contact us at: contact@dummy.com`)
+			},
+			expectedEmail: "contact@dummy.com",
+			expectedErr:   false,
 		},
 		{
-			"no email found",
-			"https://innovex.org/about-us/",
-			"",
-			nil,
+			name:    "HTTP error on fetching content",
+			content: "dummy",
+			serverHandler: func(w http.ResponseWriter, r *http.Request) {
+				http.Error(w, "test error", http.StatusInternalServerError)
+			},
+			expectedEmail: "",
+			expectedErr:   true,
+		},
+		{
+			name:    "Non-successful status code",
+			content: "dummy",
+			serverHandler: func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusNotFound)
+			},
+			expectedEmail: "",
+			expectedErr:   true,
+		},
+		{
+			name:    "No email in content",
+			content: "dummy",
+			serverHandler: func(w http.ResponseWriter, r *http.Request) {
+				fmt.Fprintln(w, `Hello World`)
+			},
+			expectedEmail: "",
+			expectedErr:   false,
 		},
 	}
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			ts := httptest.NewServer(tc.serverHandler)
+			defer ts.Close()
 
-	for _, testCase := range tt {
-		testCase := testCase
-		t.Run(testCase.testName, func(t *testing.T) {
-			t.Parallel()
-
-			got, err := scrapers.ExtractEmail(testCase.aboutUsURL)
-			if err != nil && got != testCase.want {
-				t.Errorf("Got %s, Expected %s", got, testCase.want)
+			email, err := ExtractEmail(ts.URL)
+			if tc.expectedErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tc.expectedEmail, email)
 			}
 		})
 	}

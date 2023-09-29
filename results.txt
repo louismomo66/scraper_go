@@ -1,6 +1,3 @@
-innovex:  
-codebits:  
-codeclinic:  
-jumia:  
-netlabs:  
-sunbirdAi:  
+K2 Telecom: care@k2telecom.ug 
+netlabs: gra@netlabsug.org 
+sunbirdAi: info@sunbird.ai 

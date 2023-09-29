@@ -34,12 +34,8 @@ func TestReadTxt(t *testing.T) {
 			args{
 				fileName: "../file.txt",
 			},
-			[]string{"innovex",
-				"codebits",
-				"codeclinic",
-				"jumia",
-				"netlabs",
-				"sunbirdAi"},
+			[]string{"K2 Telecom",
+				"netlabs", "sunbirdAi", "mukwano"},
 			nil,
 		},
 	}
