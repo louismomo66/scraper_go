@@ -2,12 +2,13 @@ package scrapers_test
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	scrape "scraper/scrapers"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetUrls(t *testing.T) {
@@ -42,6 +43,15 @@ func TestGetUrls(t *testing.T) {
 			companyName: "any",
 			serverHandler: func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusNotFound)
+			},
+			expectedURL: "",
+			expectedErr: true,
+		},
+		{
+			name:        "empty name",
+			companyName: "",
+			serverHandler: func(w http.ResponseWriter, r *http.Request) {
+				fmt.Fprint(w, `<a href="/url?q=https://www.noname.com/&amp;">Domain</a>`)
 			},
 			expectedURL: "",
 			expectedErr: true,
@@ -92,6 +102,20 @@ func TestAboutUs(t *testing.T) {
 				http.Error(w, "Not Found", http.StatusNotFound)
 			}),
 			expectedErr: fmt.Errorf("unexpected status code: 404"),
+		},
+		{
+			name: "full href",
+			serverHandler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				fmt.Fprintln(w, `<a href="https://www.food.com/about-us">About Us</a>`)
+			}),
+			expectedAboutUs: "https://www.food.com/about-us",
+		},
+		{
+			name: "unmatched regex",
+			serverHandler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				fmt.Fprintln(w, `<div>About Us</div>`)
+			}),
+			expectedAboutUs: "",
 		},
 	}
 
@@ -160,6 +184,24 @@ func TestExtractEmail(t *testing.T) {
 				fmt.Fprintln(w, `Hello World`)
 			},
 			expectedEmail: "",
+			expectedErr:   false,
+		},
+		{
+			name:    "no email",
+			content: "https://www.food.com/about-us",
+			serverHandler: func(w http.ResponseWriter, r *http.Request) {
+				fmt.Fprintln(w, `Contact us at: `)
+			},
+			expectedEmail: "",
+			expectedErr:   false,
+		},
+		{
+			name:    "Different email format",
+			content: "dummy",
+			serverHandler: func(w http.ResponseWriter, r *http.Request) {
+				fmt.Fprintln(w, `Contact us at: contact.dummy@website.org`)
+			},
+			expectedEmail: "contact.dummy@website.org",
 			expectedErr:   false,
 		},
 	}

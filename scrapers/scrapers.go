@@ -16,6 +16,9 @@ var ErrNonSuccessfulResponse = errors.New("non-successful response")
 var ErrUnexpectedStatusCode = errors.New("unexpected status code")
 
 func GetUrls(baseURL, companyName string) (string, error) {
+	if companyName == "" {
+		return "", errors.New("company name is empty")
+	}
 	fullCompanyName := strings.ReplaceAll(companyName, " ", "+")
 	pageLink := fmt.Sprintf("%s/search?q=%s", baseURL, fullCompanyName)
 	resp, httpErr := http.Get(pageLink) //nolint
