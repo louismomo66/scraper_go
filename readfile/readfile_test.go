@@ -10,6 +10,7 @@ import (
 )
 
 func TestReadTxt(t *testing.T) {
+	errMsg := "error occurred trying to open file open /home/louis/Desktop/scrape/file1.txt: no such file or directory"
 	t.Parallel()
 	type args struct {
 		fileName string
@@ -27,7 +28,8 @@ func TestReadTxt(t *testing.T) {
 				fileName: "/home/louis/Desktop/scrape/file1.txt",
 			},
 			[]string{},
-			errors.New("error occurred trying to open file open /home/louis/Desktop/scrape/file1.txt: no such file or directory"),
+
+			errors.New(errMsg),
 		},
 		{
 			"existentfile",

@@ -1,13 +1,13 @@
-package scrapers
+package scrapers_test
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	scrape "scraper/scrapers"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestGetUrls(t *testing.T) {
@@ -15,7 +15,7 @@ func TestGetUrls(t *testing.T) {
 		name          string
 		companyName   string
 		serverHandler http.HandlerFunc
-		expectedUrl   string
+		expectedURL   string
 		expectedErr   bool
 	}{
 		{
@@ -24,7 +24,7 @@ func TestGetUrls(t *testing.T) {
 			serverHandler: func(w http.ResponseWriter, r *http.Request) {
 				fmt.Fprintln(w, `<a href="/url?q=http://www.netlabsug.org/">Netlabs UG</a>`)
 			},
-			expectedUrl: "http://www.netlabsug.org/",
+			expectedURL: "http://www.netlabsug.org/",
 			expectedErr: false,
 		},
 
@@ -34,7 +34,7 @@ func TestGetUrls(t *testing.T) {
 			serverHandler: func(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "test error", http.StatusInternalServerError)
 			},
-			expectedUrl: "",
+			expectedURL: "",
 			expectedErr: true,
 		},
 		{
@@ -43,20 +43,22 @@ func TestGetUrls(t *testing.T) {
 			serverHandler: func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusNotFound)
 			},
-			expectedUrl: "",
+			expectedURL: "",
 			expectedErr: true,
 		},
 	}
 	for _, tc := range testTable {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			ts := httptest.NewServer(tc.serverHandler)
 			defer ts.Close()
-			url, err := GetUrls(ts.URL, tc.companyName)
+			url, err := scrape.GetUrls(ts.URL, tc.companyName)
 			if tc.expectedErr {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expectedUrl, url)
+				assert.Equal(t, tc.expectedURL, url)
 			}
 		})
 	}
@@ -64,6 +66,7 @@ func TestGetUrls(t *testing.T) {
 }
 
 func TestAboutUs(t *testing.T) {
+	t.Parallel()
 	testTable := []struct {
 		name            string
 		serverHandler   http.HandlerFunc
@@ -93,7 +96,9 @@ func TestAboutUs(t *testing.T) {
 	}
 
 	for _, tc := range testTable {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			ts := httptest.NewServer(tc.serverHandler)
 			defer ts.Close()
 			if tc.name == "Extract_aboutUs_Link" {
@@ -101,7 +106,7 @@ func TestAboutUs(t *testing.T) {
 			} else if tc.name == "No_relevant_link" {
 				tc.expectedAboutUs = ""
 			}
-			got, err := AboutUs(ts.URL)
+			got, err := scrape.AboutUs(ts.URL)
 			if !reflect.DeepEqual(err, tc.expectedErr) {
 				t.Fatalf("Expected error: %v, got: %v", tc.expectedErr, err)
 			}
@@ -113,6 +118,7 @@ func TestAboutUs(t *testing.T) {
 }
 
 func TestExtractEmail(t *testing.T) {
+	t.Parallel()
 	tt := []struct {
 		name          string
 		content       string
@@ -158,11 +164,13 @@ func TestExtractEmail(t *testing.T) {
 		},
 	}
 	for _, tc := range tt {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			ts := httptest.NewServer(tc.serverHandler)
 			defer ts.Close()
 
-			email, err := ExtractEmail(ts.URL)
+			email, err := scrape.ExtractEmail(ts.URL)
 			if tc.expectedErr {
 				assert.Error(t, err)
 			} else {

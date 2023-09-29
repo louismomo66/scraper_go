@@ -1,6 +1,7 @@
 package scrapers
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -11,12 +12,15 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+var ErrNonSuccessfulResponse = errors.New("non-successful response")
+var ErrUnexpectedStatusCode = errors.New("unexpected status code")
+
 func GetUrls(baseURL, companyName string) (string, error) {
 	fullCompanyName := strings.ReplaceAll(companyName, " ", "+")
 	pageLink := fmt.Sprintf("%s/search?q=%s", baseURL, fullCompanyName)
 	resp, httpErr := http.Get(pageLink) //nolint
 	if httpErr != nil {                 //nolint
-		err := fmt.Errorf("an error occured trying to scrape google for %s %w", companyName, httpErr)
+		err := fmt.Errorf("an error occurred trying to scrape google for %s %w", companyName, httpErr)
 		return "", err
 	}
 	defer resp.Body.Close()
@@ -27,7 +31,7 @@ func GetUrls(baseURL, companyName string) (string, error) {
 		return "", err //nolint
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return "", fmt.Errorf("non-successful response returned with status code: %d", resp.StatusCode)
+		return "", fmt.Errorf("%w returned with status code: %d", ErrNonSuccessfulResponse, resp.StatusCode)
 	}
 	foundURL := ""
 	doc.Find("body a").Each(func(index int, item *goquery.Selection) { //nolint
@@ -46,7 +50,7 @@ func GetUrls(baseURL, companyName string) (string, error) {
 
 func AboutUs(companyURL string) (string, error) {
 	aboutUsURL := ""
-	resp, err := http.Get(companyURL)
+	resp, err := http.Get(companyURL) // #nosec G107
 	if err != nil {
 		log.Printf("Error fetching %s: %v\n", companyURL, err)
 		return "", err
@@ -86,7 +90,7 @@ func ExtractEmail(content string) (string, error) {
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		log.Printf("received non-200 status code: %d", resp.StatusCode)
-		return "", fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		return "", fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
 	}
 
 	data, err := io.ReadAll(resp.Body)

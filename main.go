@@ -19,7 +19,7 @@ func main() {
 
 	for _, name := range companyName { //nolint
 		companyUrls, err := scrape.GetUrls(baseURL, name)
-		aboutUsLink, _ := scrape.AboutUs(companyUrls)
+		aboutUsLink, err := scrape.AboutUs(companyUrls)
 		if err != nil {
 			log.Printf("Error fetching about us link for %s: %v", companyUrls, err)
 			continue
