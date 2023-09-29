@@ -12,6 +12,7 @@ import (
 )
 
 func TestGetUrls(t *testing.T) {
+	t.Parallel()
 	testTable := []struct {
 		name          string
 		companyName   string
